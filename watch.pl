@@ -26,5 +26,6 @@ while defined(my $line = <>) {
 
 sub usage() {
     print STDERR "Usage: $0 [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
-
+    exit 1
+}
 
