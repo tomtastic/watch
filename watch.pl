@@ -13,10 +13,22 @@
 # PERL implementation by Tom Matthews, 2012.
 #
 
-my $usage = "Usage: $0 [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
+my $progname = $0
+my $usage = "Usage: %s [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
 
 sub usage() {
-    print STDERR $usage;
-    exit 1
+    printf STDERR $usage, $progname;
+    exit 1;
+}
+
+sub help() {
+    printf STDERR $usage, $progname;
+    print STDERR " -d, --differences[=cumulative]\thighlight changes between updates\n";
+    print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
+    print STDERR " -h, --help\t\t\t\tprint a summary of the options\n";
+    print STDERR " -n, --interval=<seconds>\t\tseconds to wait between updates\n";
+    print STDERR " -v, --version\t\t\t\tprint the version number\n";
+    print STDERR " -t, --no-title\t\t\tturns off showing the header\n";
+    exit 0;
 }
 
