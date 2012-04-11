@@ -13,15 +13,18 @@
 # PERL implementation by Tom Matthews, 2012.
 #
 
+use Getopt::Long;
+
+my $VERSION = "0.2.0";
 my $progname = $0;
 my $usage = "Usage: %s [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
 
-sub usage() {
+sub do_usage() {
     printf STDERR $usage, $progname;
     exit 1;
 }
 
-sub help() {
+sub option_help() {
     printf STDERR $usage, $progname;
     print STDERR " -d, --differences[=cumulative]\thighlight changes between updates\n";
     print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
@@ -32,3 +35,25 @@ sub help() {
     exit 0;
 }
 
+sub option_version() {
+    printf STDERR "%s\n", $VERSION;
+    exit 1 unless (! option_help);
+}
+
+my $show_title=2;			# number of lines used, 2 or 0
+my $option_differences=0;
+my $option_differences_cumulative=0;
+my $option_help=0;
+my $option_version=0;
+my $interval=2;
+my $command;
+my $command_length=0;
+
+GetOptions  ('d|differences:i' => \$option_differences,
+             'h|help' => \&option_help,
+             'n|interval=i' => \$interval,
+             't|no-title' => \$show_title,
+             'v|version' => \&option_version,
+);
+
+&do_usage unless (@ARGV);
