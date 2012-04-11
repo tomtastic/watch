@@ -33,6 +33,8 @@ my $interval=2;
 my $command;
 my $command_length=0;
 
+&do_usage unless (@ARGV);
+
 GetOptions  ('d|differences:i' => \$option_differences,
              'h|help' => \$option_help,
              'n|interval=i' => \$interval,
@@ -40,16 +42,14 @@ GetOptions  ('d|differences:i' => \$option_differences,
              'v|version' => \$option_version,
 );
 
-&do_usage unless (@ARGV);
-
-if ($option_version) {
+if (defined $option_version) {
     printf STDERR "%s\n", $VERSION;
-    if (!$option_help) {
+    if (! defined $option_help) {
 	exit 0;
     }
 }
 
-if ($option_help) {
+if (defined $option_help) {
     printf STDERR $usage, $progname;
     print STDERR " -d, --differences[=cumulative]\t\thighlight changes between updates\n";
     print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
