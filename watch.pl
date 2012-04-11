@@ -24,22 +24,6 @@ sub do_usage() {
     exit 1;
 }
 
-sub option_help() {
-    printf STDERR $usage, $progname;
-    print STDERR " -d, --differences[=cumulative]\thighlight changes between updates\n";
-    print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
-    print STDERR " -h, --help\t\t\t\tprint a summary of the options\n";
-    print STDERR " -n, --interval=<seconds>\t\tseconds to wait between updates\n";
-    print STDERR " -v, --version\t\t\t\tprint the version number\n";
-    print STDERR " -t, --no-title\t\t\tturns off showing the header\n";
-    exit 0;
-}
-
-sub option_version() {
-    printf STDERR "%s\n", $VERSION;
-    exit 1 unless (! option_help);
-}
-
 my $show_title=2;			# number of lines used, 2 or 0
 my $option_differences=0;
 my $option_differences_cumulative=0;
@@ -50,10 +34,28 @@ my $command;
 my $command_length=0;
 
 GetOptions  ('d|differences:i' => \$option_differences,
-             'h|help' => \&option_help,
+             'h|help' => \$option_help,
              'n|interval=i' => \$interval,
              't|no-title' => \$show_title,
-             'v|version' => \&option_version,
+             'v|version' => \$option_version,
 );
 
 &do_usage unless (@ARGV);
+
+if ($option_version) {
+    printf STDERR "%s\n", $VERSION;
+    if (!$option_help) {
+	exit 0;
+    }
+}
+
+if ($option_help) {
+    printf STDERR $usage, $progname;
+    print STDERR " -d, --differences[=cumulative]\t\thighlight changes between updates\n";
+    print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
+    print STDERR " -h, --help\t\t\t\tprint a summary of the options\n";
+    print STDERR " -n, --interval=<seconds>\t\tseconds to wait between updates\n";
+    print STDERR " -v, --version\t\t\t\tprint the version number\n";
+    print STDERR " -t, --no-title\t\t\t\tturns off showing the header\n";
+    exit 0;
+}
