@@ -42,14 +42,14 @@ GetOptions  ('d|differences:i' => \$option_differences,
              'v|version' => \$option_version,
 );
 
-if (defined $option_version) {
+if ($option_version >= 1) {
     printf STDERR "%s\n", $VERSION;
-    if (! defined $option_help) {
+    if (! $option_help) {
 	exit 0;
     }
 }
 
-if (defined $option_help) {
+if (defined $option_help >= 1) {
     printf STDERR $usage, $progname;
     print STDERR " -d, --differences[=cumulative]\t\thighlight changes between updates\n";
     print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
