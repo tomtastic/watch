@@ -24,4 +24,7 @@ while defined(my $line = <>) {
     print $underline, "\n\n";
 }
 
+sub usage() {
+    print STDERR "Usage: $0 [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
+
 
