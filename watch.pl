@@ -24,6 +24,25 @@ sub do_usage() {
     exit 1;
 }
 
+my $env_col_buf;
+my $env_row_buf;
+my $incoming_cols;
+my $incoming_rows;
+
+sub get_terminal_size() {
+    if (!$incoming_cols) {
+        # my $s = getenv("COLUMNS");
+	# $incoming_cols = -1;
+    }
+    if (!$incoming_rows) {
+        # my $s = getenv("LINES");
+        # $incoming_rows = -1;
+    }
+    if ($incoming_cols<0 || $incoming_rows<0) {
+        # blah
+    }
+}
+
 my $show_title=2;			# number of lines used, 2 or 0
 my $option_differences=0;
 my $option_differences_cumulative=0;
