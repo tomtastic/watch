@@ -13,7 +13,7 @@
 # PERL implementation by Tom Matthews, 2012.
 #
 
-my $progname = $0
+my $progname = $0;
 my $usage = "Usage: %s [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
 
 sub usage() {
