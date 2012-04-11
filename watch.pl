@@ -13,8 +13,10 @@
 # PERL implementation by Tom Matthews, 2012.
 #
 
+my $usage = "Usage: $0 [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
+
 sub usage() {
-    print STDERR "Usage: $0 [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
+    print STDERR $usage;
     exit 1
 }
 
