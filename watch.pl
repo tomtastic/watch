@@ -24,19 +24,36 @@ sub do_usage() {
     exit 1;
 }
 
-my $env_col_buf;
-my $env_row_buf;
+my $height = 24, $width = 80;
 my $incoming_cols;
 my $incoming_rows;
 
 sub get_terminal_size() {
     if (!$incoming_cols) {
-        my $s = $ENV{'COLUMNS'};
+        local $s = $ENV{'COLUMNS'};	# Get cols from env if set
 	$incoming_cols = -1;
+	if (defined $s) {
+	    local $t = $s;
+	    $t =~ s/^\s+//;		# strip leading whitespace
+	    if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test cols are gt 0 and lt 666
+		$incoming_cols = $t;
+            }
+	    $width = $incoming_cols;
+	    $ENV{'COLUMNS'} = $width;
+	}
     }
     if (!$incoming_rows) {
-        my $s = $ENV{'LINES'};
+        local $s = $ENV{'LINES'};
         $incoming_rows = -1;
+	if (defined $s) {
+	    local $t = $s;
+	    $t =~ s/^\s+//;		# strip leading whitespace
+	    if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test rows are gt 0 and lt 666
+		$incoming_rows = $t;
+            }
+	    $height = $incoming_rows;
+	    $ENV{'LINES'} = $height;
+        }
     }
     if ($incoming_cols<0 || $incoming_rows<0) {
         # blah
@@ -78,3 +95,6 @@ if ($option_help >= 1) {
     print STDERR " -t, --no-title\t\t\t\tturns off showing the header\n";
     exit 0;
 }
+
+&get_terminal_size;
+
