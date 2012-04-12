@@ -31,12 +31,12 @@ my $incoming_rows;
 
 sub get_terminal_size() {
     if (!$incoming_cols) {
-        # my $s = getenv("COLUMNS");
-	# $incoming_cols = -1;
+        my $s = $ENV{'COLUMNS'};
+	$incoming_cols = -1;
     }
     if (!$incoming_rows) {
-        # my $s = getenv("LINES");
-        # $incoming_rows = -1;
+        my $s = $ENV{'LINES'};
+        $incoming_rows = -1;
     }
     if ($incoming_cols<0 || $incoming_rows<0) {
         # blah
