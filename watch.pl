@@ -88,8 +88,6 @@ sub get_terminal_size() {
     }
     if ($incoming_cols<0 || $incoming_rows<0) {			# If valid size still not found yet
         %winsize=(&ioctl_TIOCGWINSZ);
-        print "cols=$winsize{ws_col}\n"; 
-        print "rows=$winsize{ws_row}\n"; 
         if ($incoming_rows < 0 && $winsize{ws_row} > 0) {
             $height = $winsize{ws_row};
             $ENV{'LINES'} = $height;	
