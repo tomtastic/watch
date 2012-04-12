@@ -24,17 +24,48 @@ sub do_usage() {
     exit 1;
 }
 
+sub ioctl_TIOCGWINSZ(%) {
+# Sets $rows and $cols to values representing the terminals view (cf. environment variables LINES,COLUMNS)
+# We use this workaround to avoid needing to query TIOCGWINSZ using C ioctls
+# As long as the system has the stty command, this should be fairly portable
+    chomp (local $stty_cmd=`which stty`);
+    local @line;
+
+    open (STTY, "$stty_cmd -a |") || die "$progname requires $stty_cmd, which we can't open\n";
+    while (<STTY>) {
+        next unless (/columns/);
+        @line=split /;/,$_,4;
+        foreach my $segment (@line) {
+            if ($segment =~ /rows/) {
+            $winsize{ws_row} = $segment;
+            $winsize{ws_row} =~ s/^\D*//;
+            $winsize{ws_row} =~ s/\D*$//;
+            }
+        elsif ($segment =~ /columns/) {
+            $winsize{ws_col} = $segment;
+            $winsize{ws_col} =~ s/^\D*//;
+            $winsize{ws_col} =~ s/\D*$//;
+            }
+        }
+    }
+    return %winsize;
+}
+
 my $height = 24, $width = 80;
 my $incoming_cols;
 my $incoming_rows;
 
 sub get_terminal_size() {
+    my %winsize = (
+        ws_row => undef,
+	ws_col => undef
+	);
     if (!$incoming_cols) {
-        local $s = $ENV{'COLUMNS'};	# Get cols from env if set
+        local $s = $ENV{'COLUMNS'};				# Get cols from env if set
 	$incoming_cols = -1;
 	if (defined $s) {
 	    local $t = $s;
-	    $t =~ s/^\s+//;		# strip leading whitespace
+	    $t =~ s/^\s+//;					# strip leading whitespace
 	    if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test cols are gt 0 and lt 666
 		$incoming_cols = $t;
             }
@@ -43,11 +74,11 @@ sub get_terminal_size() {
 	}
     }
     if (!$incoming_rows) {
-        local $s = $ENV{'LINES'};
+        local $s = $ENV{'LINES'};				# Get rows from env if set
         $incoming_rows = -1;
 	if (defined $s) {
 	    local $t = $s;
-	    $t =~ s/^\s+//;		# strip leading whitespace
+	    $t =~ s/^\s+//;					# strip leading whitespace
 	    if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test rows are gt 0 and lt 666
 		$incoming_rows = $t;
             }
@@ -55,8 +86,18 @@ sub get_terminal_size() {
 	    $ENV{'LINES'} = $height;
         }
     }
-    if ($incoming_cols<0 || $incoming_rows<0) {
-        # blah
+    if ($incoming_cols<0 || $incoming_rows<0) {			# If valid size still not found yet
+        %winsize=(&ioctl_TIOCGWINSZ);
+        print "cols=$winsize{ws_col}\n"; 
+        print "rows=$winsize{ws_row}\n"; 
+        if ($incoming_rows < 0 && $winsize{ws_row} > 0) {
+            height = $winsize{ws_row};
+            $ENV{'LINES'} = $height;	
+        }
+        if ($incoming_cols < 1 && $winsize{ws_col} > 0) {
+            width = $winsize{ws_col};
+            $ENV{'COLUMNS'} = $width;
+        }
     }
 }
 
