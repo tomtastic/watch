@@ -91,11 +91,11 @@ sub get_terminal_size() {
         print "cols=$winsize{ws_col}\n"; 
         print "rows=$winsize{ws_row}\n"; 
         if ($incoming_rows < 0 && $winsize{ws_row} > 0) {
-            height = $winsize{ws_row};
+            $height = $winsize{ws_row};
             $ENV{'LINES'} = $height;	
         }
         if ($incoming_cols < 1 && $winsize{ws_col} > 0) {
-            width = $winsize{ws_col};
+            $width = $winsize{ws_col};
             $ENV{'COLUMNS'} = $width;
         }
     }
