@@ -68,7 +68,7 @@ if ($option_version >= 1) {
     }
 }
 
-if (defined $option_help >= 1) {
+if ($option_help >= 1) {
     printf STDERR $usage, $progname;
     print STDERR " -d, --differences[=cumulative]\t\thighlight changes between updates\n";
     print STDERR "\t\t(cumulative means highlighting is cumulative)\n";
