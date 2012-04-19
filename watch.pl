@@ -14,6 +14,7 @@
 #
 
 use Getopt::Long;
+use Time::HiRes qw(sleep);
 
 my $VERSION = "0.2.0";
 my $progname = $0;
@@ -56,7 +57,7 @@ my $incoming_cols;
 my $incoming_rows;
 
 sub get_terminal_size() {
-    my %winsize = (
+    local %winsize = (
         ws_row => undef,
 	ws_col => undef
 	);
@@ -87,7 +88,7 @@ sub get_terminal_size() {
         }
     }
     if ($incoming_cols<0 || $incoming_rows<0) {			# If valid size still not found yet
-        %winsize=(&ioctl_TIOCGWINSZ);
+        %winsize=ioctl_TIOCGWINSZ();
         if ($incoming_rows < 0 && $winsize{ws_row} > 0) {
             $height = $winsize{ws_row};
             $ENV{'LINES'} = $height;	
@@ -112,8 +113,10 @@ my $command_length=0;
 
 GetOptions  ('d|differences:i' => \$option_differences,
              'h|help' => \$option_help,
-             'n|interval=i' => \$interval,
-             't|no-title' => \$show_title,
+             'n|interval=i' => sub { if (\$interval !~ /^[0-9]*$/) { do_usage; }
+	                             if (\$interval <= 0.1) { $interval=0.1 }
+				     if (\$interval >= 4096) { $interval=4096 } },
+             't|no-title' => sub { $show_title=0 },
              'v|version' => \$option_version,
 );
 
@@ -135,5 +138,30 @@ if ($option_help >= 1) {
     exit 0;
 }
 
-&get_terminal_size;
+chomp (my $command=@ARGV);
+
+get_terminal_size;
+
+while (true) {
+    local $time = localtime();
+    local $x, $y;
+    open (P, "$command |") || die "cannot open $command\n";
+
+    if ($show_title >= 1) {
+	# left justify interval and command,
+	# right justify time, clipping all to fit window width
+	#asprintf(&header, "Every %.1fs: %.*s",
+	#interval, min(width - 1, command_length), command);
+	#mvaddstr(0, 0, header);
+	#if (strlen(header) > (size_t) (width - tsl - 1))
+	#    mvaddstr(0, width - tsl - 4, "... ");
+	#    mvaddstr(0, width - tsl + 1, ts);
+	#    free(header);
+    }
+
+    print "$time ...\n";
+    sleep($interval);
+};
+
+
 
