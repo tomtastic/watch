@@ -113,9 +113,11 @@ my $command_length=0;
 
 GetOptions  ('d|differences:i' => \$option_differences,
              'h|help' => \$option_help,
-             'n|interval=i' => sub { if (\$interval !~ /^[0-9]+$/) { do_usage; }
-	                             if (\$interval <= 0.1) { $interval=0.1 }
-				     if (\$interval >= 4096) { $interval=4096 } },
+             'n|interval=f' => sub { local *_ = \$_[1];
+	                             $interval = $_;
+	                             if ($interval =~ /^[+-]+/) { do_usage; }
+	                             if ($interval <= 0.1) { $interval=0.1; }
+				     if ($interval >= 4096) { $interval=4096; } },
              't|no-title' => sub { $show_title=0 },
              'v|version' => \$option_version,
 );
