@@ -25,6 +25,10 @@ sub do_usage() {
     exit 1;
 }
 
+sub winch_handler() {
+    my $screen_size_changed=1;
+}
+
 sub ioctl_TIOCGWINSZ(%) {
 # Sets $rows and $cols to values representing the terminals view (cf. environment variables LINES,COLUMNS)
 # We use this workaround to avoid needing to query TIOCGWINSZ using C ioctls
@@ -143,6 +147,12 @@ if ($option_help >= 1) {
 chomp (my $command="@ARGV");
 
 get_terminal_size;
+
+# Catch keyboard interrupts so we can put tty back in a sane state.
+local $SIG{INT} = sub { die "\n" };
+local $SIG{TERM} = sub { die "\n" };
+local $SIG{HUP} = sub { die "\n" };
+local $SIG{WINCH} = 'winch_handler';
 
 while (true) {
     local $time = localtime();
