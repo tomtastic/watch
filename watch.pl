@@ -13,21 +13,41 @@
 # PERL implementation by Tom Matthews, 2012.
 #
 
+my $VERSION = "0.2.0";
+
 use Getopt::Long;
 use Time::HiRes qw(sleep);
 
-my $VERSION = "0.2.0";
-my $progname = $0;
 my $usage = "Usage: %s [-dhntv] [--differences[=cumulative]] [--help] [--interval=<n>] [--no-title] [--version] <command>\n";
+
+my $progname = $0;
+
+my $curses_started = 0;
+my $height = 24, $width = 80;
+my $screen_size_changed = 0;
+my $first_screen = 1;
+my $show_title=2;			# number of lines used, 2 or 0
 
 sub do_usage() {
     printf STDERR $usage, $progname;
     exit 1;
 }
 
+sub do_exit($) {
+    local $status = @_;
+    if ($curses_started) {
+        # how to replicate without curses
+		# endwin;
+    }
+    exit($status);
+}
+
 sub winch_handler() {
     my $screen_size_changed=1;
 }
+
+my $incoming_cols;
+my $incoming_rows;
 
 sub ioctl_TIOCGWINSZ(%) {
 # Sets $rows and $cols to values representing the terminals view (cf. environment variables LINES,COLUMNS)
@@ -56,10 +76,6 @@ sub ioctl_TIOCGWINSZ(%) {
     return %winsize;
 }
 
-my $height = 24, $width = 80;
-my $incoming_cols;
-my $incoming_rows;
-
 sub get_terminal_size() {
     local %winsize = (
         ws_row => undef,
@@ -67,16 +83,16 @@ sub get_terminal_size() {
 	);
     if (!$incoming_cols) {
         local $s = $ENV{'COLUMNS'};				# Get cols from env if set
-	$incoming_cols = -1;
-	if (defined $s) {
-	    local $t = $s;
-	    $t =~ s/^\s+//;					# strip leading whitespace
-	    if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test cols are gt 0 and lt 666
-		$incoming_cols = $t;
+        $incoming_cols = -1;
+        if (defined $s) {
+            local $t = $s;
+            $t =~ s/^\s+//;					# strip leading whitespace
+            if (($t =~ /^[1-9][0-9]*$/) && ($t < 666)) {	# test cols are gt 0 and lt 666
+                $incoming_cols = $t;
             }
 	    $width = $incoming_cols;
 	    $ENV{'COLUMNS'} = $width;
-	}
+        }
     }
     if (!$incoming_rows) {
         local $s = $ENV{'LINES'};				# Get rows from env if set
@@ -104,7 +120,6 @@ sub get_terminal_size() {
     }
 }
 
-my $show_title=2;			# number of lines used, 2 or 0
 my $option_differences=0;
 my $option_differences_cumulative=0;
 my $option_help=0;
@@ -149,15 +164,18 @@ chomp (my $command="@ARGV");
 get_terminal_size;
 
 # Catch keyboard interrupts so we can put tty back in a sane state.
-local $SIG{INT} = sub { die "\n" };
-local $SIG{TERM} = sub { die "\n" };
-local $SIG{HUP} = sub { die "\n" };
+local $SIG{INT} = sub { exit 1 };
+local $SIG{TERM} = sub { exit 1 };
+local $SIG{HUP} = sub { exit 1 };
 local $SIG{WINCH} = 'winch_handler';
 
 while (true) {
     local $time = localtime();
     local $x, $y;
-    open (P, "$command |") || die "cannot open $command\n";
+    open (P, "$command |") || sub {
+        warn "cannot open $command\n";
+        do_exit(2);
+    };
 
     if ($show_title >= 1) {
 	# left justify interval and command,
@@ -169,7 +187,7 @@ while (true) {
 	#    mvaddstr(0, width - tsl - 4, "... ");
 	#    mvaddstr(0, width - tsl + 1, ts);
 	#    free(header);
-	printf ("Every %.1fs: %.*s\n", $interval, $command);
+	printf ("Every %.1fs: %s\n", $interval, $command);
     }
 
     while (<P>) {
@@ -178,6 +196,11 @@ while (true) {
 
     sleep($interval);
 };
+
+# how to replicate without curses
+#endwin;
+
+exit 0;
 
 
 
