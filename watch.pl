@@ -113,7 +113,7 @@ my $command_length=0;
 
 GetOptions  ('d|differences:i' => \$option_differences,
              'h|help' => \$option_help,
-             'n|interval=i' => sub { if (\$interval !~ /^[0-9]*$/) { do_usage; }
+             'n|interval=i' => sub { if (\$interval !~ /^[0-9]+$/) { do_usage; }
 	                             if (\$interval <= 0.1) { $interval=0.1 }
 				     if (\$interval >= 4096) { $interval=4096 } },
              't|no-title' => sub { $show_title=0 },
@@ -139,7 +139,6 @@ if ($option_help >= 1) {
 }
 
 chomp (my $command="@ARGV");
-print "DEBUG command is : $command\n";
 
 get_terminal_size;
 
@@ -158,10 +157,13 @@ while (true) {
 	#    mvaddstr(0, width - tsl - 4, "... ");
 	#    mvaddstr(0, width - tsl + 1, ts);
 	#    free(header);
-	print "TIME\n";
+	printf ("Every %.1fs: %.*s\n", $interval, $command);
     }
 
-    print "$time\n";
+    while (<P>) {
+	print;
+    }
+
     sleep($interval);
 };
 
