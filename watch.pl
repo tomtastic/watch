@@ -138,7 +138,8 @@ if ($option_help >= 1) {
     exit 0;
 }
 
-chomp (my $command=@ARGV);
+chomp (my $command="@ARGV");
+print "DEBUG command is : $command\n";
 
 get_terminal_size;
 
@@ -157,9 +158,10 @@ while (true) {
 	#    mvaddstr(0, width - tsl - 4, "... ");
 	#    mvaddstr(0, width - tsl + 1, ts);
 	#    free(header);
+	print "TIME\n";
     }
 
-    print "$time ...\n";
+    print "$time\n";
     sleep($interval);
 };
 
